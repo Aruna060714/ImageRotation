@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>360° Bottle Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    #viewer {
+      width: 400px;
+      height: 600px;
+      background: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+    img {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      display: none;
+    }
+    img.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="viewer"></div>
+
+  <script>
+    const viewer = document.getElementById('viewer');
+    const totalFrames = 36;
+    let currentFrame = 0;
+    let startX;
+    for (let i = 0; i < totalFrames; i++) {
+      const img = document.createElement('img');
+      img.src = `frames/frame_${String(i).padStart(2, '0')}.png`;
+      if (i === 0) img.classList.add('active');
+      viewer.appendChild(img);
+    }
+
+    const images = viewer.querySelectorAll('img');
+    function showFrame(index) {
+      images.forEach((img, i) => {
+        img.classList.toggle('active', i === index);
+      });
+    }
+
+    viewer.addEventListener('mousedown', e => {
+      startX = e.pageX;
+      viewer.addEventListener('mousemove', onMouseMove);
+    });
+
+    window.addEventListener('mouseup', () => {
+      viewer.removeEventListener('mousemove', onMouseMove);
+    });
+    function onMouseMove(e) {
+      let delta = e.pageX - startX;
+      if (Math.abs(delta) > 5) {
+        currentFrame = (currentFrame + (delta > 0 ? 1 : -1) + totalFrames) % totalFrames;
+        showFrame(currentFrame);
+        startX = e.pageX;
+      }
+    }
+    viewer.addEventListener('touchstart', e => {
+      startX = e.touches[0].pageX;
+    });
+    viewer.addEventListener('touchmove', e => {
+      const delta = e.touches[0].pageX - startX;
+      if (Math.abs(delta) > 5) {
+        currentFrame = (currentFrame + (delta > 0 ? 1 : -1) + totalFrames) % totalFrames;
+        showFrame(currentFrame);
+        startX = e.touches[0].pageX;
+      }
+    });
+  </script>
+</body>
+</html>
